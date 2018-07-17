@@ -1,0 +1,37 @@
+version: '2.2'
+services:
+  web:
+    container_name: ${PROJECT_NAME}_odoo_web
+    image: ${REMOTE_SERVER}/${PROJECT_NAME}_web_odoo:${RELEASE_VERSION}
+    restart: always
+    cpus: 1.0
+    mem_limit: 1g
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+    depends_on:
+      - db
+  db:
+    container_name: ${PROJECT_NAME}_odoo_db
+    image: ${REMOTE_SERVER}/postgres:9.4
+    restart: always
+    mem_limit: 1g
+    cpus: 0.5
+    environment:
+        - POSTGRES_PASSWORD=odoo
+        - POSTGRES_USER=odoo
+        - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+        - odoo-db-data:/var/lib/postgresql/data/pgdata
+  proxy:
+    container_name: ${PROJECT_NAME}_odoo_proxy
+    image: ${REMOTE_SERVER}/${PROJECT_NAME}_proxy_nginx:${RELEASE_VERSION}
+    restart: always
+    cpus: 0.5
+    mem_limit: 1g
+    depends_on:
+      - web
+    ports:
+      - "8000:8000"
+volumes:
+  odoo-web-data:
+  odoo-db-data:
